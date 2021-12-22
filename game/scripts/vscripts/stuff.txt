@@ -1,0 +1,49 @@
+- Add new Upgradable CDR item
+- Make CDR affect nimbus
+- Make CDR stack?
+- Always spawn 2 super arcane runes
+
+
+if modifier_name == "modifier_rune_arcane" then
+		target:AddNewModifier(target, nil, "modifier_imba_rune_arcane", {duration = 60.0})
+		for i=0, 23 do
+			local caster_ability = target:GetAbilityByIndex(i)
+			if caster_ability and not caster_ability:IsCooldownReady() then
+				local cd = caster_ability:GetCooldownTimeRemaining() * 0.1
+				caster_ability:EndCooldown()
+				caster_ability:StartCooldown(cd)
+			end
+		end
+		for i=0, 23 do
+			local caster_ability = target:GetItemInSlot(i)
+			if caster_ability and not caster_ability:IsCooldownReady() then
+				local cd = caster_ability:GetCooldownTimeRemaining() * 0.1
+				caster_ability:EndCooldown()
+				caster_ability:StartCooldown(cd)
+			end
+		end
+		return false
+	end
+
+
+
+  
+modifier_imba_rune_arcane = class({})
+
+function modifier_imba_rune_arcane:IsDebuff()			return false end
+function modifier_imba_rune_arcane:IsHidden() 			return false end
+function modifier_imba_rune_arcane:IsPurgable() 		return false end
+function modifier_imba_rune_arcane:IsPurgeException() 	return false end
+function modifier_imba_rune_arcane:GetTexture() return "rune_arcane" end
+function modifier_imba_rune_arcane:GetEffectName() return "particles/generic_gameplay/rune_arcane_owner.vpcf" end
+function modifier_imba_rune_arcane:GetEffectAttachType() return PATTACH_ABSORIGIN_FOLLOW end
+function modifier_imba_rune_arcane:DeclareFunctions() return {MODIFIER_PROPERTY_COOLDOWN_PERCENTAGE, MODIFIER_PROPERTY_MANACOST_PERCENTAGE_STACKING, MODIFIER_PROPERTY_SPELL_AMPLIFY_PERCENTAGE, MODIFIER_EVENT_ON_DEATH} end
+function modifier_imba_rune_arcane:GetModifierPercentageCooldown() return 50 end
+function modifier_imba_rune_arcane:GetModifierPercentageManacostStacking() return 50 end
+function modifier_imba_rune_arcane:GetModifierSpellAmplify_Percentage() return 50 end
+
+function modifier_imba_rune_arcane:OnDeath(keys)
+	if IsServer() and keys.unit == self:GetParent() then
+		self:Destroy()
+	end
+end
