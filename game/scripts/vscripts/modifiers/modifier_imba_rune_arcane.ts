@@ -20,7 +20,7 @@
 import { BaseModifier, registerModifier } from "../lib/dota_ts_adapter";
 
 @registerModifier()
-export class modifier_imba_rune_arcane extends BaseModifier {
+export class modifier_imba_rune extends BaseModifier {
     IsDebuff(): boolean {
         return false;
     }
@@ -67,8 +67,9 @@ export class modifier_imba_rune_arcane extends BaseModifier {
         return 50;
     }
 
-    OnDeath(event: ModifierAttackEvent): void {
+    OnDeath(event: ModifierInstanceEvent): void {
         if (IsServer() && event.unit == this.GetParent()) {
+            print("arcanedeath self");
             this.Destroy();
         }
     }

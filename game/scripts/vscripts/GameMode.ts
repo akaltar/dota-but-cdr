@@ -1,6 +1,6 @@
 import { reloadable } from "./lib/tstl-utils";
 
-import "./modifiers/modifier_imba_rune_arcane";
+import { modifier_imba_rune } from "./modifiers/modifier_imba_rune_arcane";
 const heroSelectionTime = 10;
 
 declare global {
@@ -14,7 +14,7 @@ export class GameMode {
     public static Precache(this: void, context: CScriptPrecacheContext) {
         PrecacheResource(
             "particle",
-            "particles/units/heroes/hero_meepo/meepo_earthbind_projectile_fx.vpcf",
+            "particles/generic_gameplay/rune_arcane_owner.vpcf",
             context
         );
         PrecacheResource(
@@ -47,36 +47,50 @@ export class GameMode {
         // GameRules.SetCustomGameTeamMaxPlayers(DOTATeam_t.DOTA_TEAM_BADGUYS, 3);
         //GameRules.SetNextRuneSpawnTime(0);
         //GameRules.G
+        print("configuring");
         GameRules.SetShowcaseTime(0);
         GameRules.SetHeroSelectionTime(heroSelectionTime);
         const gameMode = GameRules.GetGameModeEntity();
         gameMode.SetModifierGainedFilter(this.ModifierGainedFilter, {});
-        gameMode.SetRuneEnabled(DOTA_RUNES.DOTA_RUNE_DOUBLEDAMAGE, false);
+        gameMode.SetPowerRuneSpawnInterval(1);
+        gameMode.SetUseDefaultDOTARuneSpawnLogic(true);
+        gameMode.SetRuneSpawnFilter(this.FilterRuneSpawn, {});
+        //gameMode.SetRuneEnabled(DOTA_RUNES.DOTA_RUNE_ARCANE, true);
+        /*gameMode.SetRuneEnabled(DOTA_RUNES.DOTA_RUNE_DOUBLEDAMAGE, false);
         gameMode.SetRuneEnabled(DOTA_RUNES.DOTA_RUNE_ILLUSION, false);
         gameMode.SetRuneEnabled(DOTA_RUNES.DOTA_RUNE_INVISIBILITY, false);
+        gameMode.SetRuneEnabled(DOTA_RUNES.DOTA_RUNE_WATER, true);*/
+    }
+
+    public FilterRuneSpawn(event: RuneSpawnFilterEvent): boolean {
+        print("filtering rune spawn", event.rune_type);
+        print("waiting for", DOTA_RUNES.DOTA_RUNE_ARCANE);
+        return false;
     }
 
     public OnStateChange(): void {
         const state = GameRules.State_Get();
 
+        print("StateChange");
         // Add 4 bots to lobby in tools
         if (
             IsInToolsMode() &&
             state == DOTA_GameState.DOTA_GAMERULES_STATE_CUSTOM_GAME_SETUP
         ) {
+            print("spawning");
             for (let i = 0; i < 4; i++) {
-                Tutorial.AddBot("npc_dota_hero_lina", "", "", false);
+                //Tutorial.AddBot("npc_dota_hero_lina", "", "", false);
             }
         }
 
         // Start game once pregame hits
         if (state == DOTA_GameState.DOTA_GAMERULES_STATE_PRE_GAME) {
-            Timers.CreateTimer(0.2, () => this.StartGame());
+            print("starting the game");
+            //Timers.CreateTimer(0.2, () => this.StartGame());
         }
     }
 
-    public ModifierGainedFilter(event: ModifierGainedFilterEvent) {
-        print("Modifier gained filter: " + event.name_const);
+    public ModifierGainedFilter(event: ModifierGainedFilterEvent): boolean {
         const duration = event.duration;
         const target = EntIndexToHScript(
             event.entindex_parent_const
@@ -84,12 +98,11 @@ export class GameMode {
 
         const modifier_name = event.name_const;
         if (modifier_name === "modifier_rune_arcane") {
-            target.AddNewModifier(
-                target,
-                undefined,
-                "modifier_imba_rune_arcane",
-                { duration: duration }
-            );
+            print("Filtering arcane: " + event.name_const);
+
+            target.AddNewModifier(target, undefined, modifier_imba_rune.name, {
+                duration: duration,
+            });
             for (let i = 0; i < 24; ++i) {
                 const ability = target.GetAbilityByIndex(i);
                 if (ability && !ability.IsCooldownReady()) {
@@ -102,8 +115,9 @@ export class GameMode {
                     item.EndCooldown();
                 }
             }
+            //return false;
         }
-        return false;
+        return true;
     }
 
     private StartGame(): void {
@@ -115,6 +129,7 @@ export class GameMode {
     // Called on script_reload
     public Reload() {
         print("Script reloaded!");
+        this.configure();
 
         // Do some stuff here
     }
