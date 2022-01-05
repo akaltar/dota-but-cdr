@@ -44,28 +44,59 @@ export class GameMode {
 
     private configure(): void {
         // GameRules.SetCustomGameTeamMaxPlayers(DOTATeam_t.DOTA_TEAM_GOODGUYS, 3);
-        // GameRules.SetCustomGameTeamMaxPlayers(DOTATeam_t.DOTA_TEAM_BADGUYS, 3);
+        GameRules.SetCustomGameTeamMaxPlayers(DOTATeam_t.DOTA_TEAM_BADGUYS, 10);
         //GameRules.SetNextRuneSpawnTime(0);
         //GameRules.G
         print("configuring");
-        GameRules.SetShowcaseTime(0);
-        GameRules.SetHeroSelectionTime(heroSelectionTime);
-        const gameMode = GameRules.GetGameModeEntity();
-        gameMode.SetModifierGainedFilter(this.ModifierGainedFilter, {});
-        gameMode.SetPowerRuneSpawnInterval(1);
-        gameMode.SetUseDefaultDOTARuneSpawnLogic(true);
-        gameMode.SetRuneSpawnFilter(this.FilterRuneSpawn, {});
+        //GameRules.SetShowcaseTime(0);
+        //GameRules.SetHeroSelectionTime(heroSelectionTime);
+
+        // const gameMode = GameRules.GetGameModeEntity();
+
+        // gameMode.SetModifierGainedFilter(this.ModifierGainedFilter, {});
+
+        // gameMode.SetRuneSpawnFilter(this.FilterRuneSpawn, {});
+
+        // gameMode.SetBotThinkingEnabled(true);
+
+        GameRules.SetCustomVictoryMessage("Merry christmas Dear!");
+        GameRules.SetCustomVictoryMessageDuration(10);
+
+        SpawnMangoTree(
+            Vector(-5200, -5200, 0),
+            DOTATeam_t.DOTA_TEAM_GOODGUYS,
+            10000000,
+            2,
+            2
+        );
+
+        // pos 2: -1561, 994.5, 0
+        // pos 1: -1625, 1100, 0
+        const RuneSpawn1 = Vector(-1625, 1100, 0);
+        const RuneSpawn2 = Vector(1225, -1200, 0);
+        const spawninterval = 120;
+
+        Timers.CreateTimer(spawninterval, () => {
+            CreateRune(RuneSpawn1, DOTA_RUNES.DOTA_RUNE_ARCANE);
+            CreateRune(RuneSpawn2, DOTA_RUNES.DOTA_RUNE_ARCANE);
+            return spawninterval;
+        });
+
         //gameMode.SetRuneEnabled(DOTA_RUNES.DOTA_RUNE_ARCANE, true);
         /*gameMode.SetRuneEnabled(DOTA_RUNES.DOTA_RUNE_DOUBLEDAMAGE, false);
         gameMode.SetRuneEnabled(DOTA_RUNES.DOTA_RUNE_ILLUSION, false);
         gameMode.SetRuneEnabled(DOTA_RUNES.DOTA_RUNE_INVISIBILITY, false);
         gameMode.SetRuneEnabled(DOTA_RUNES.DOTA_RUNE_WATER, true);*/
+
+        // To give enemy xp lead
+        //gameMode.SetModifyExperienceFilter(this.ModifyExperience, {});
     }
 
     public FilterRuneSpawn(event: RuneSpawnFilterEvent): boolean {
         print("filtering rune spawn", event.rune_type);
         print("waiting for", DOTA_RUNES.DOTA_RUNE_ARCANE);
-        return false;
+
+        return event.rune_type === DOTA_RUNES.DOTA_RUNE_BOUNTY;
     }
 
     public OnStateChange(): void {
@@ -78,7 +109,7 @@ export class GameMode {
             state == DOTA_GameState.DOTA_GAMERULES_STATE_CUSTOM_GAME_SETUP
         ) {
             print("spawning");
-            for (let i = 0; i < 4; i++) {
+            for (let i = 0; i < 6; i++) {
                 //Tutorial.AddBot("npc_dota_hero_lina", "", "", false);
             }
         }
