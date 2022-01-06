@@ -39,7 +39,7 @@
     }
   }
 
-    "item_clarity2"
+    "item_clarity_2"
     {
         "BaseClass" "item_clarity"
 		// General
