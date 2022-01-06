@@ -1,0 +1,13 @@
+
+"lang"
+{
+	"Language"		"English"
+	"Tokens"
+	{		
+		"addon_game_name"													"Dota 2 but CDR is OP"
+    "DOTA_Tooltip_Ability_item_clarity2"				"Super Clarity"
+    "DOTA_Tooltip_Ability_item_clarity2_description"				"egyé manát"
+    "DOTA_Tooltip_Ability_item_octarine_core2"	"Super Octarine core"
+    "DOTA_Tooltip_Ability_item_octarine_core2_description"	"varázsújá sokat"
+  }
+}
