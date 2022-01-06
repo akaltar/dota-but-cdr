@@ -44,20 +44,16 @@ export class modifier_imba_rune extends BaseModifier {
     }
     DeclareFunctions(): modifierfunction[] {
         return [
-            modifierfunction.MODIFIER_PROPERTY_COOLDOWN_PERCENTAGE,
+            modifierfunction.MODIFIER_PROPERTY_COOLDOWN_PERCENTAGE_STACKING,
             modifierfunction.MODIFIER_PROPERTY_MANACOST_PERCENTAGE_STACKING,
             modifierfunction.MODIFIER_PROPERTY_SPELL_AMPLIFY_PERCENTAGE,
             // Take this out and it lasts through death
             modifierfunction.MODIFIER_EVENT_ON_DEATH,
         ];
     }
-    GetModifierPercentageCooldown(): number {
-        print("nonstacking");
-        return 50;
-    }
 
     GetModifierPercentageCooldownStacking(): number {
-        print("stacking");
+        // if this doesn't work, remove "stacking"
         return 50;
     }
     GetModifierPercentageManacostStacking(): number {

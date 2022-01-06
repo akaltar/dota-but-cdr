@@ -1,11 +1,59 @@
-- Always spawn 2 super arcane runes that give spell amp and refresh skills
-- Fix UI
-- Make AI work
-- Make enemy have more heroes?
-- Give them a bit of an xp lead?
+- Always spawn 2 super arcane runes that give spell amp and refresh skills - Done
+- Fix UI - Done
+- Make AI work - Done
+- Make enemy have more heroes - Done
+- Make CDR stack? => Sorta done
+- Add new Upgradable CDR item - Octarine 2 is ready
 
-
-
-- Add new Upgradable CDR item
 - Make CDR affect nimbus
-- Make CDR stack?
+- Give them a bit of an xp/gold lead?
+- Publish from workshop manager tool.
+- Super clarity?
+
+Dota 2 but I wish you a merry christmas and low cooldowns
+
+
+  -- check if creator is in game
+  for nPlayerID = 0, DOTA_MAX_PLAYERS-1 do
+    if PlayerResource:IsValidPlayer(nPlayerID) then
+      local steamID = PlayerResource:GetSteamAccountID(nPlayerID)
+      local playerName = PlayerResource:GetPlayerName(nPlayerID)
+      if steamID == 16271326 then
+        isCreatorInGame = true
+        creatorName = playerName
+        creatorPlayerID = nPlayerID
+        if creatorName == '' then
+          creatorName = 'DarkSupremo'
+        end
+      end
+    end
+  end
+
+
+  local improveStats = function(heroUnit)
+        local itemDummy = CreateItem("item_dummy", nil, nil) 
+        itemDummy:ApplyDataDrivenModifier(heroUnit, heroUnit, "modifier_stats_bonus_x" .. factor, {})
+        UTIL_Remove(itemDummy)
+      end
+
+      -- if units is alive, buff stats immediately
+      if hero:IsAlive()  == true then
+
+        -- buff it
+        improveStats(hero)
+
+      -- we can't apply modifier while dead, do it when unit is alive
+      else
+
+        -- async call to buff stats
+        Timers:CreateTimer(0, function()
+
+            -- wait until hero is alive
+            if hero:IsAlive()  == false then return 1 end
+
+            -- buff it
+            improveStats(hero)            
+
+        end)
+
+      end

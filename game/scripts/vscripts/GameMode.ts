@@ -48,16 +48,16 @@ export class GameMode {
         //GameRules.SetNextRuneSpawnTime(0);
         //GameRules.G
         print("configuring");
-        //GameRules.SetShowcaseTime(0);
-        //GameRules.SetHeroSelectionTime(heroSelectionTime);
+        GameRules.SetShowcaseTime(0);
+        GameRules.SetHeroSelectionTime(heroSelectionTime);
 
-        // const gameMode = GameRules.GetGameModeEntity();
+        const gameMode = GameRules.GetGameModeEntity();
 
-        // gameMode.SetModifierGainedFilter(this.ModifierGainedFilter, {});
+        gameMode.SetModifierGainedFilter(this.ModifierGainedFilter, {});
 
-        // gameMode.SetRuneSpawnFilter(this.FilterRuneSpawn, {});
+        gameMode.SetRuneSpawnFilter(this.FilterRuneSpawn, {});
 
-        // gameMode.SetBotThinkingEnabled(true);
+        gameMode.SetBotThinkingEnabled(true);
 
         GameRules.SetCustomVictoryMessage("Merry christmas Dear!");
         GameRules.SetCustomVictoryMessageDuration(10);
@@ -103,21 +103,17 @@ export class GameMode {
         const state = GameRules.State_Get();
 
         print("StateChange");
-        // Add 4 bots to lobby in tools
-        if (
-            IsInToolsMode() &&
-            state == DOTA_GameState.DOTA_GAMERULES_STATE_CUSTOM_GAME_SETUP
-        ) {
+        if (state == DOTA_GameState.DOTA_GAMERULES_STATE_CUSTOM_GAME_SETUP) {
             print("spawning");
-            for (let i = 0; i < 6; i++) {
-                //Tutorial.AddBot("npc_dota_hero_lina", "", "", false);
+            for (let i = 0; i < 10; i++) {
+                Tutorial.AddBot("npc_dota_hero_lina", "", "", false);
             }
         }
 
         // Start game once pregame hits
         if (state == DOTA_GameState.DOTA_GAMERULES_STATE_PRE_GAME) {
             print("starting the game");
-            //Timers.CreateTimer(0.2, () => this.StartGame());
+            Timers.CreateTimer(0.2, () => this.StartGame());
         }
     }
 
@@ -146,7 +142,7 @@ export class GameMode {
                     item.EndCooldown();
                 }
             }
-            //return false;
+            return false;
         }
         return true;
     }
