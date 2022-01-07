@@ -11,15 +11,13 @@ declare global {
 
 @reloadable
 export class GameMode {
+    private listeners: EventListenerID[] = [];
+    private lastCDR: number = 1;
+    private zeusIndex?: EntityIndex;
     public static Precache(this: void, context: CScriptPrecacheContext) {
         PrecacheResource(
             "particle",
             "particles/generic_gameplay/rune_arcane_owner.vpcf",
-            context
-        );
-        PrecacheResource(
-            "soundfile",
-            "soundevents/game_sounds_heroes/game_sounds_meepo.vsndevts",
             context
         );
     }
@@ -29,20 +27,94 @@ export class GameMode {
     }
 
     constructor() {
+        this.listeners = [];
         this.configure();
-        ListenToGameEvent(
-            "game_rules_state_change",
-            () => this.OnStateChange(),
-            undefined
-        );
-        ListenToGameEvent(
-            "npc_spawned",
-            (event) => this.OnNpcSpawned(event),
-            undefined
-        );
+    }
+
+    private OnPlayerBeginCast(event: DotaPlayerBeginCastEvent): void {
+        // const abilityName = event.abilityname;
+        // print("begin cast ", abilityName);
+        // const caster = EntIndexToHScript(event.caster_entindex);
+    }
+
+    private OnNpcSpawned(event: NpcSpawnedEvent): void {
+        const caster = EntIndexToHScript(event.entindex) as CDOTA_BaseNPC;
+        if (caster.GetUnitName() === "npc_dota_zeus_cloud") {
+            print("pog");
+
+            if (!this.zeusIndex) return;
+
+            const zeus = EntIndexToHScript(this.zeusIndex) as CDOTA_BaseNPC;
+            const bolt = zeus.GetAbilityByIndex(1);
+            if (!bolt) return;
+
+            caster.AddAbility(bolt.GetAbilityName());
+            const abi = caster.GetAbilityByIndex(0);
+            abi?.SetLevel(bolt.GetLevel());
+
+            caster.AddNewModifier(
+                undefined,
+                undefined,
+                modifier_imba_rune.name,
+                { duration: 50 }
+            );
+
+            print("modifiers: ", caster.GetModifierCount());
+            for (let i = 0; i < caster.GetModifierCount(); i++) {
+                const mod = caster.GetModifierNameByIndex(i);
+                print("mod: ", mod);
+            }
+
+            caster.SetThink(
+                () => {
+                    const units = FindUnitsInRadius(
+                        caster.GetTeam(),
+                        caster.GetAbsOrigin(),
+                        undefined,
+                        650,
+                        DOTA_UNIT_TARGET_TEAM.DOTA_UNIT_TARGET_TEAM_ENEMY,
+                        DOTA_UNIT_TARGET_TYPE.DOTA_UNIT_TARGET_HERO |
+                            DOTA_UNIT_TARGET_TYPE.DOTA_UNIT_TARGET_CREEP,
+                        DOTA_UNIT_TARGET_FLAGS.DOTA_UNIT_TARGET_FLAG_NONE,
+                        FindOrder.FIND_CLOSEST,
+                        false
+                    );
+                    if (units[0] && this.zeusIndex) {
+                        if (!abi) return 1.0;
+                        caster.SetMaxMana(20000);
+                        caster.SetMana(200000);
+                        caster.CastAbilityOnTarget(units[0], abi, -1);
+                        print(
+                            "target:",
+                            units[0].GetUnitName(),
+                            "spell:",
+                            bolt.GetName()
+                        );
+                    }
+
+                    return 1.0;
+                },
+                undefined,
+                undefined,
+                0.5
+            );
+        }
+    }
+
+    private OnPlayerUsedAbility(event: DotaPlayerUsedAbilityEvent): void {
+        const abilityName = event.abilityname;
+        if (abilityName === "zuus_cloud") {
+            const caster = EntIndexToHScript(
+                event.caster_entindex
+            ) as CDOTA_BaseNPC_Hero;
+            this.lastCDR = caster.GetCooldownReduction();
+            print("lastCDR:", this.lastCDR);
+            this.zeusIndex = event.caster_entindex;
+        }
     }
 
     private configure(): void {
+        this.listeners.forEach((id) => StopListeningToGameEvent(id));
         // GameRules.SetCustomGameTeamMaxPlayers(DOTATeam_t.DOTA_TEAM_GOODGUYS, 3);
         GameRules.SetCustomGameTeamMaxPlayers(DOTATeam_t.DOTA_TEAM_BADGUYS, 10);
         //GameRules.SetNextRuneSpawnTime(0);
@@ -70,8 +142,6 @@ export class GameMode {
             2
         );
 
-        // pos 2: -1561, 994.5, 0
-        // pos 1: -1625, 1100, 0
         const RuneSpawn1 = Vector(-1625, 1100, 0);
         const RuneSpawn2 = Vector(1225, -1200, 0);
         const spawninterval = 120;
@@ -81,6 +151,37 @@ export class GameMode {
             CreateRune(RuneSpawn2, DOTA_RUNES.DOTA_RUNE_ARCANE);
             return spawninterval;
         });
+
+        print("newest");
+        this.listeners.push(
+            ListenToGameEvent(
+                "game_rules_state_change",
+                () => this.OnStateChange(),
+                undefined
+            )
+        );
+        this.listeners.push(
+            ListenToGameEvent(
+                "npc_spawned",
+                (event) => this.OnNpcSpawned(event),
+                undefined
+            )
+        );
+
+        this.listeners.push(
+            ListenToGameEvent(
+                "dota_player_used_ability",
+                (event) => this.OnPlayerUsedAbility(event),
+                undefined
+            )
+        );
+        this.listeners.push(
+            ListenToGameEvent(
+                "dota_player_begin_cast",
+                (event) => this.OnPlayerBeginCast(event),
+                undefined
+            )
+        );
 
         //gameMode.SetRuneEnabled(DOTA_RUNES.DOTA_RUNE_ARCANE, true);
         /*gameMode.SetRuneEnabled(DOTA_RUNES.DOTA_RUNE_DOUBLEDAMAGE, false);
@@ -159,19 +260,5 @@ export class GameMode {
         this.configure();
 
         // Do some stuff here
-    }
-
-    private OnNpcSpawned(event: NpcSpawnedEvent) {
-        // // After a hero unit spawns, apply modifier_panic for 8 seconds
-        // const unit = EntIndexToHScript(event.entindex) as CDOTA_BaseNPC; // Cast to npc since this is the 'npc_spawned' event
-        // if (unit.IsRealHero()) {
-        //     Timers.CreateTimer(1, () => {
-        //         unit.AddNewModifier(unit, undefined, "modifier_panic", { duration: 8 });
-        //     });
-        //     if (!unit.HasAbility("meepo_earthbind_ts_example")) {
-        //         // Add lua ability to the unit
-        //         unit.AddAbility("meepo_earthbind_ts_example");
-        //     }
-        // }
     }
 }

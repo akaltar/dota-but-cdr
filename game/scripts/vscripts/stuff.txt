@@ -4,11 +4,14 @@
 - Make enemy have more heroes - Done
 - Make CDR stack? => Sorta done
 - Add new Upgradable CDR item - Octarine 2 is ready
+- Super clarity - Done
+- Tooltips - Done
 
-- Make CDR affect nimbus
-- Give them a bit of an xp/gold lead?
+- Pink nimbus
+- Colorful skills
+- Make CDR affect nimbus - HARD
+- Give them a bit of an xp/gold lead - Why make it hard??
 - Publish from workshop manager tool.
-- Super clarity?
 
 Dota 2 but I wish you a merry christmas and low cooldowns
 
