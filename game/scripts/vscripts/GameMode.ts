@@ -1,6 +1,7 @@
 import { reloadable } from "./lib/tstl-utils";
 
 import { modifier_imba_rune } from "./modifiers/modifier_imba_rune_arcane";
+import { modifier_imba_cloud } from "./modifiers/modifier_imba_cloud";
 const heroSelectionTime = 10;
 
 declare global {
@@ -31,47 +32,50 @@ export class GameMode {
         this.configure();
     }
 
-    private OnPlayerBeginCast(event: DotaPlayerBeginCastEvent): void {
-        // const abilityName = event.abilityname;
-        // print("begin cast ", abilityName);
-        // const caster = EntIndexToHScript(event.caster_entindex);
-    }
-
     private OnNpcSpawned(event: NpcSpawnedEvent): void {
-        const caster = EntIndexToHScript(event.entindex) as CDOTA_BaseNPC;
-        if (caster.GetUnitName() === "npc_dota_zeus_cloud") {
+        const unit = EntIndexToHScript(event.entindex) as CDOTA_BaseNPC;
+        if (unit.GetUnitName() === "npc_dota_hero_zuus") {
+            print("zuus spawned, buffed");
+            unit.AddNewModifier(unit, undefined, modifier_imba_cloud.name, {});
+        }
+
+        if (unit.GetUnitName() === "npc_dota_zeus_cloud") {
             print("pog");
 
             if (!this.zeusIndex) return;
 
             const zeus = EntIndexToHScript(this.zeusIndex) as CDOTA_BaseNPC;
-            const bolt = zeus.GetAbilityByIndex(1);
-            if (!bolt) return;
+            if (!zeus) return;
+            zeus.SetRenderColor(100, 100, 100);
 
-            caster.AddAbility(bolt.GetAbilityName());
-            const abi = caster.GetAbilityByIndex(0);
-            abi?.SetLevel(bolt.GetLevel());
+            const arc = zeus.GetAbilityByIndex(0);
+            if (!arc) return;
 
-            caster.AddNewModifier(
-                undefined,
-                undefined,
-                modifier_imba_rune.name,
-                { duration: 50 }
+            unit.AddAbility(arc.GetAbilityName());
+            const abi = unit.GetAbilityByIndex(0);
+            abi?.SetLevel(arc.GetLevel());
+
+            unit.SetRenderColor(50, 50, 50);
+
+            print(
+                "interval",
+                zeus
+                    .GetAbilityByIndex(3)
+                    ?.GetSpecialValueFor("cloud_bolt_interval")
             );
 
-            print("modifiers: ", caster.GetModifierCount());
-            for (let i = 0; i < caster.GetModifierCount(); i++) {
-                const mod = caster.GetModifierNameByIndex(i);
-                print("mod: ", mod);
-            }
+            const area =
+                zeus
+                    .GetAbilityByIndex(3)
+                    ?.GetLevelSpecialValueNoOverride("cloud_radius", 1) || 500;
 
-            caster.SetThink(
+            unit.SetThink(
                 () => {
                     const units = FindUnitsInRadius(
-                        caster.GetTeam(),
-                        caster.GetAbsOrigin(),
+                        unit.GetTeam(),
+                        unit.GetAbsOrigin(),
                         undefined,
-                        650,
+                        area,
                         DOTA_UNIT_TARGET_TEAM.DOTA_UNIT_TARGET_TEAM_ENEMY,
                         DOTA_UNIT_TARGET_TYPE.DOTA_UNIT_TARGET_HERO |
                             DOTA_UNIT_TARGET_TYPE.DOTA_UNIT_TARGET_CREEP,
@@ -81,18 +85,12 @@ export class GameMode {
                     );
                     if (units[0] && this.zeusIndex) {
                         if (!abi) return 1.0;
-                        caster.SetMaxMana(20000);
-                        caster.SetMana(200000);
-                        caster.CastAbilityOnTarget(units[0], abi, -1);
-                        print(
-                            "target:",
-                            units[0].GetUnitName(),
-                            "spell:",
-                            bolt.GetName()
-                        );
+                        unit.SetMaxMana(20000);
+                        unit.SetMana(200000);
+                        unit.CastAbilityOnTarget(units[0], abi, -1);
                     }
 
-                    return 1.0;
+                    return 2.0 * zeus.GetCooldownReduction();
                 },
                 undefined,
                 undefined,
@@ -126,7 +124,6 @@ export class GameMode {
         const gameMode = GameRules.GetGameModeEntity();
 
         gameMode.SetModifierGainedFilter(this.ModifierGainedFilter, {});
-
         gameMode.SetRuneSpawnFilter(this.FilterRuneSpawn, {});
 
         gameMode.SetBotThinkingEnabled(true);
@@ -152,7 +149,6 @@ export class GameMode {
             return spawninterval;
         });
 
-        print("newest");
         this.listeners.push(
             ListenToGameEvent(
                 "game_rules_state_change",
@@ -172,13 +168,6 @@ export class GameMode {
             ListenToGameEvent(
                 "dota_player_used_ability",
                 (event) => this.OnPlayerUsedAbility(event),
-                undefined
-            )
-        );
-        this.listeners.push(
-            ListenToGameEvent(
-                "dota_player_begin_cast",
-                (event) => this.OnPlayerBeginCast(event),
                 undefined
             )
         );
@@ -206,7 +195,7 @@ export class GameMode {
         print("StateChange");
         if (state == DOTA_GameState.DOTA_GAMERULES_STATE_CUSTOM_GAME_SETUP) {
             print("spawning");
-            for (let i = 0; i < 10; i++) {
+            for (let i = 0; i < 6; i++) {
                 Tutorial.AddBot("npc_dota_hero_lina", "", "", false);
             }
         }

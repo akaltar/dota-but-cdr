@@ -6,14 +6,23 @@
 - Add new Upgradable CDR item - Octarine 2 is ready
 - Super clarity - Done
 - Tooltips - Done
+- Make CDR affect nimbus - HARD - BUT DONE!
+- Colorful skills - Kinda shitty but done
 
-- Pink nimbus
-- Colorful skills
-- Make CDR affect nimbus - HARD
+- Fix couriers
+- fix passive income
+- nerf arcane
+- Tooltip for modifiers
+- ?Update tooltip for nimbus?
+- Arcana for zuuuuus
+
+
+- Pink nimbus - nah
 - Give them a bit of an xp/gold lead - Why make it hard??
 - Publish from workshop manager tool.
 
 Dota 2 but I wish you a merry christmas and low cooldowns
+Dota 2 but justice for Zeus
 
 
   -- check if creator is in game
