@@ -8,15 +8,15 @@
 - Tooltips - Done
 - Make CDR affect nimbus - HARD - BUT DONE!
 - Colorful skills - Kinda shitty but done
-
 - Fix couriers
 - fix passive income
-- nerf arcane
+- nerf arcane => now rare
 - Tooltip for modifiers
+
 - ?Update tooltip for nimbus?
-- Arcana for zuuuuus
 
 
+- Arcana for zuuuuus - hard
 - Pink nimbus - nah
 - Give them a bit of an xp/gold lead - Why make it hard??
 - Publish from workshop manager tool.

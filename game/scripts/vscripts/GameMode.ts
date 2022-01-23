@@ -2,6 +2,7 @@ import { reloadable } from "./lib/tstl-utils";
 
 import { modifier_imba_rune } from "./modifiers/modifier_imba_rune_arcane";
 import { modifier_imba_cloud } from "./modifiers/modifier_imba_cloud";
+import { modifier_passive_gold } from "./modifiers/modifier_passive_gold";
 const heroSelectionTime = 10;
 
 declare global {
@@ -127,6 +128,7 @@ export class GameMode {
         gameMode.SetRuneSpawnFilter(this.FilterRuneSpawn, {});
 
         gameMode.SetBotThinkingEnabled(true);
+        gameMode.SetFreeCourierModeEnabled(true);
 
         GameRules.SetCustomVictoryMessage("Merry christmas Dear!");
         GameRules.SetCustomVictoryMessageDuration(10);
@@ -138,16 +140,17 @@ export class GameMode {
             2,
             2
         );
+        // spawn 10 trees
 
-        const RuneSpawn1 = Vector(-1625, 1100, 0);
-        const RuneSpawn2 = Vector(1225, -1200, 0);
-        const spawninterval = 120;
+        // const RuneSpawn1 = Vector(-1625, 1100, 0);
+        // const RuneSpawn2 = Vector(1225, -1200, 0);
+        // const spawninterval = 120;
 
-        Timers.CreateTimer(spawninterval, () => {
-            CreateRune(RuneSpawn1, DOTA_RUNES.DOTA_RUNE_ARCANE);
-            CreateRune(RuneSpawn2, DOTA_RUNES.DOTA_RUNE_ARCANE);
-            return spawninterval;
-        });
+        // Timers.CreateTimer(spawninterval, () => {
+        //     CreateRune(RuneSpawn1, DOTA_RUNES.DOTA_RUNE_ARCANE);
+        //     CreateRune(RuneSpawn2, DOTA_RUNES.DOTA_RUNE_ARCANE);
+        //     return spawninterval;
+        // });
 
         this.listeners.push(
             ListenToGameEvent(
@@ -172,6 +175,8 @@ export class GameMode {
             )
         );
 
+        gameMode.SetUseDefaultDOTARuneSpawnLogic(true);
+
         //gameMode.SetRuneEnabled(DOTA_RUNES.DOTA_RUNE_ARCANE, true);
         /*gameMode.SetRuneEnabled(DOTA_RUNES.DOTA_RUNE_DOUBLEDAMAGE, false);
         gameMode.SetRuneEnabled(DOTA_RUNES.DOTA_RUNE_ILLUSION, false);
@@ -180,13 +185,43 @@ export class GameMode {
 
         // To give enemy xp lead
         //gameMode.SetModifyExperienceFilter(this.ModifyExperience, {});
+
+        this.FixDota();
     }
 
     public FilterRuneSpawn(event: RuneSpawnFilterEvent): boolean {
-        print("filtering rune spawn", event.rune_type);
-        print("waiting for", DOTA_RUNES.DOTA_RUNE_ARCANE);
+        return true;
+        // print("filtering rune spawn", event.rune_type);
+        // print("waiting for", DOTA_RUNES.DOTA_RUNE_ARCANE);
 
-        return event.rune_type === DOTA_RUNES.DOTA_RUNE_BOUNTY;
+        // return event.rune_type === DOTA_RUNES.DOTA_RUNE_BOUNTY;
+    }
+
+    public FixPassiveIncome(npc: CDOTA_BaseNPC) {
+        if (npc.HasModifier(modifier_passive_gold.name)) return;
+        npc.AddNewModifier(npc, undefined, modifier_passive_gold.name, {
+            gold_per_tick: 2,
+            gold_tick_time: 1,
+        });
+    }
+
+    public FixDota(): void {
+        this.listeners.push(
+            ListenToGameEvent(
+                "npc_spawned",
+                (event) => {
+                    const npc = EntIndexToHScript(
+                        event.entindex
+                    ) as CDOTA_BaseNPC;
+                    if (!npc.IsRealHero()) return;
+                    //if(isMonkeyKingClone(npc)) return;
+                    Timers.CreateTimer(0, () => {
+                        this.FixPassiveIncome(npc);
+                    });
+                },
+                undefined
+            )
+        );
     }
 
     public OnStateChange(): void {
@@ -197,6 +232,14 @@ export class GameMode {
             print("spawning");
             for (let i = 0; i < 6; i++) {
                 Tutorial.AddBot("npc_dota_hero_lina", "", "", false);
+            }
+            for (let i = 0; i < 2; i++) {
+                Tutorial.AddBot(
+                    "npc_dota_hero_monkey_king",
+                    "enemy",
+                    "enemy",
+                    true
+                );
             }
         }
 
@@ -239,15 +282,11 @@ export class GameMode {
 
     private StartGame(): void {
         print("Game starting!");
-
-        // Do some stuff here
     }
 
     // Called on script_reload
     public Reload() {
         print("Script reloaded!");
         this.configure();
-
-        // Do some stuff here
     }
 }
