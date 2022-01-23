@@ -74,7 +74,7 @@
 			"01"
 			{
 				"var_type"				"FIELD_FLOAT"
-				"mana_regen"			"15"
+				"mana_regen"			"20"
 			}
 			"02"
 			{

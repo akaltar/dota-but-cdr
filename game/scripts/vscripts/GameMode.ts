@@ -47,7 +47,6 @@ export class GameMode {
 
             const zeus = EntIndexToHScript(this.zeusIndex) as CDOTA_BaseNPC;
             if (!zeus) return;
-            zeus.SetRenderColor(100, 100, 100);
 
             const arc = zeus.GetAbilityByIndex(0);
             if (!arc) return;
@@ -230,16 +229,11 @@ export class GameMode {
         print("StateChange");
         if (state == DOTA_GameState.DOTA_GAMERULES_STATE_CUSTOM_GAME_SETUP) {
             print("spawning");
-            for (let i = 0; i < 6; i++) {
-                Tutorial.AddBot("npc_dota_hero_lina", "", "", false);
+            for (let i = 0; i < 5; i++) {
+                Tutorial.AddBot("npc_dota_hero_lina", "", "unfair", false);
             }
-            for (let i = 0; i < 2; i++) {
-                Tutorial.AddBot(
-                    "npc_dota_hero_monkey_king",
-                    "enemy",
-                    "enemy",
-                    true
-                );
+            for (let i = 0; i < 3; i++) {
+                Tutorial.AddBot("npc_dota_hero_lina", "", "unfair", true);
             }
         }
 

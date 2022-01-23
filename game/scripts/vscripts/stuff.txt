@@ -13,15 +13,23 @@
 - nerf arcane => now rare
 - Tooltip for modifiers
 
-- ?Update tooltip for nimbus?
+- Fix bots??? - Maybe setting difficulty to unfair or 
+- Fix dedicated servers? - need to make game public
 
+- Make clarities stack? - slight buff and add cm aura to mango trees instead
+ Eating a mango has chance to spawn mango tree.
+
+- buff nimbus health
+- make octarine cheaper
+- remove black zuus
+- More mana regen
+- Update tooltip for nimbus?
 
 - Arcana for zuuuuus - hard
 - Pink nimbus - nah
 - Give them a bit of an xp/gold lead - Why make it hard??
 - Publish from workshop manager tool.
 
-Dota 2 but I wish you a merry christmas and low cooldowns
 Dota 2 but justice for Zeus
 
 
@@ -40,32 +48,3 @@ Dota 2 but justice for Zeus
       end
     end
   end
-
-
-  local improveStats = function(heroUnit)
-        local itemDummy = CreateItem("item_dummy", nil, nil) 
-        itemDummy:ApplyDataDrivenModifier(heroUnit, heroUnit, "modifier_stats_bonus_x" .. factor, {})
-        UTIL_Remove(itemDummy)
-      end
-
-      -- if units is alive, buff stats immediately
-      if hero:IsAlive()  == true then
-
-        -- buff it
-        improveStats(hero)
-
-      -- we can't apply modifier while dead, do it when unit is alive
-      else
-
-        -- async call to buff stats
-        Timers:CreateTimer(0, function()
-
-            -- wait until hero is alive
-            if hero:IsAlive()  == false then return 1 end
-
-            -- buff it
-            improveStats(hero)            
-
-        end)
-
-      end
