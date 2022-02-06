@@ -114,20 +114,22 @@ export class GameMode {
     private configure(): void {
         this.listeners.forEach((id) => StopListeningToGameEvent(id));
         // GameRules.SetCustomGameTeamMaxPlayers(DOTATeam_t.DOTA_TEAM_GOODGUYS, 3);
-        GameRules.SetCustomGameTeamMaxPlayers(DOTATeam_t.DOTA_TEAM_BADGUYS, 10);
+        //GameRules.SetCustomGameTeamMaxPlayers(DOTATeam_t.DOTA_TEAM_BADGUYS, 10);
         //GameRules.SetNextRuneSpawnTime(0);
         //GameRules.G
         print("configuring");
-        GameRules.SetShowcaseTime(0);
-        GameRules.SetHeroSelectionTime(heroSelectionTime);
+        //GameRules.SetShowcaseTime(0);
+        //GameRules.SetHeroSelectionTime(heroSelectionTime);
 
         const gameMode = GameRules.GetGameModeEntity();
 
         gameMode.SetModifierGainedFilter(this.ModifierGainedFilter, {});
         gameMode.SetRuneSpawnFilter(this.FilterRuneSpawn, {});
 
-        gameMode.SetBotThinkingEnabled(true);
         gameMode.SetFreeCourierModeEnabled(true);
+        gameMode.SetTowerBackdoorProtectionEnabled(true);
+        gameMode.SetBotThinkingEnabled(true);
+        gameMode.SetUseDefaultDOTARuneSpawnLogic(true);
 
         GameRules.SetCustomVictoryMessage("Merry christmas Dear!");
         GameRules.SetCustomVictoryMessageDuration(10);
@@ -173,8 +175,6 @@ export class GameMode {
                 undefined
             )
         );
-
-        gameMode.SetUseDefaultDOTARuneSpawnLogic(true);
 
         //gameMode.SetRuneEnabled(DOTA_RUNES.DOTA_RUNE_ARCANE, true);
         /*gameMode.SetRuneEnabled(DOTA_RUNES.DOTA_RUNE_DOUBLEDAMAGE, false);
@@ -228,12 +228,31 @@ export class GameMode {
 
         print("StateChange");
         if (state == DOTA_GameState.DOTA_GAMERULES_STATE_CUSTOM_GAME_SETUP) {
+            // Testing if this helps with bots
+            Tutorial.StartTutorialMode();
+
+            const lanes = ["top", "top", "bot", "bot", "mid"];
+            const difficulty = "hard";
+
+            const heroes = [
+                "npc_dota_hero_crystal_maiden",
+                "npc_dota_hero_sven",
+                "npc_dota_hero_death_prophet",
+                "npc_dota_hero_dazzle",
+                "npc_dota_hero_lina",
+                "npc_dota_hero_nevermore",
+                "npc_dota_hero_dragon_knight",
+                "npc_dota_hero_phantom_assassin",
+                "npc_dota_hero_witch_doctor",
+            ];
+
             print("spawning");
             for (let i = 0; i < 5; i++) {
-                Tutorial.AddBot("npc_dota_hero_lina", "", "unfair", false);
+                // Hero, lane, difficulty, allied or not
+                Tutorial.AddBot(heroes[i], lanes[i], difficulty, false);
             }
             for (let i = 0; i < 3; i++) {
-                Tutorial.AddBot("npc_dota_hero_lina", "", "unfair", true);
+                Tutorial.AddBot(heroes[5 + i], lanes[i], difficulty, true);
             }
         }
 

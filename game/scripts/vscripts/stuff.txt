@@ -12,8 +12,12 @@
 - fix passive income
 - nerf arcane => now rare
 - Tooltip for modifiers
+- Publish from workshop manager tool.
 
-- Fix bots??? - Maybe setting difficulty to unfair or 
+
+- To limit maps set maps in addonInfo => see if it works.
+- Fix bots??? - Maybe setting difficulty to unfair + setting lane may help. Starting tutorial mode may help.
+Try setting constant hero list
 - Fix dedicated servers? - need to make game public
 
 - Make clarities stack? - slight buff and add cm aura to mango trees instead
@@ -24,14 +28,14 @@
 - remove black zuus
 - More mana regen
 - Update tooltip for nimbus?
+- Cast range bonus should work on nimbus
 
 - Arcana for zuuuuus - hard
 - Pink nimbus - nah
 - Give them a bit of an xp/gold lead - Why make it hard??
-- Publish from workshop manager tool.
+
 
 Dota 2 but justice for Zeus
-
 
   -- check if creator is in game
   for nPlayerID = 0, DOTA_MAX_PLAYERS-1 do
